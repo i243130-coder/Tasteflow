@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Spinner?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.geometry.Insets?>
+
+<SplitPane dividerPositions="0.45"
+           xmlns="http://javafx.com/javafx/11"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.tasteflow.controller.MenuManagementController">
+
+    <!-- ==================== LEFT PANEL: FORM ==================== -->
+    <VBox spacing="12">
+        <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
+
+        <Label text="Menu Item Management" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
+        <Separator/>
+
+        <GridPane hgap="10" vgap="10">
+            <columnConstraints>
+                <ColumnConstraints minWidth="110" prefWidth="110"/>
+                <ColumnConstraints hgrow="ALWAYS"/>
+            </columnConstraints>
+
+            <!-- Row 0: Category -->
+            <Label text="Category:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+            <HBox spacing="8" GridPane.rowIndex="0" GridPane.columnIndex="1">
+                <ComboBox fx:id="categoryCombo" promptText="Select Category" HBox.hgrow="ALWAYS" maxWidth="1.7976931348623157E308"/>
+                <Button text="+ New" onAction="#handleNewCategory" style="-fx-font-size: 11;"/>
+            </HBox>
+
+            <!-- Row 1: Item Name -->
+            <Label text="Item Name:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+            <TextField fx:id="itemNameField" promptText="e.g. Grilled Salmon" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+            <!-- Row 2: Price -->
+            <Label text="Price ($):" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+            <TextField fx:id="priceField" promptText="0.00" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+            <!-- Row 3: Prep Time -->
+            <Label text="Prep Time (min):" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+            <Spinner fx:id="prepTimeSpinner" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+            <!-- Row 4: Description -->
+            <Label text="Description:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+            <TextArea fx:id="descriptionArea" promptText="Short description…" prefRowCount="2"
+                      GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+            <!-- Row 5: Available -->
+            <Label text="Available:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+            <CheckBox fx:id="availableCheck" selected="true" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+        </GridPane>
+
+        <Separator/>
+
+        <!-- Recipe Section -->
+        <Label text="Recipe Ingredients" style="-fx-font-size: 14; -fx-font-weight: bold;"/>
+
+        <HBox spacing="8">
+            <ComboBox fx:id="ingredientCombo" promptText="Select Ingredient" HBox.hgrow="ALWAYS" maxWidth="1.7976931348623157E308"/>
+            <TextField fx:id="qtyField" promptText="Qty" prefWidth="80"/>
+            <Button text="Add" onAction="#handleAddRecipeRow"/>
+            <Button text="Remove" onAction="#handleRemoveRecipeRow" styleClass="btn-danger"/>
+        </HBox>
+
+        <TableView fx:id="recipeTable" prefHeight="160" VBox.vgrow="ALWAYS">
+            <columns>
+                <TableColumn fx:id="riNameCol" text="Ingredient" prefWidth="160"/>
+                <TableColumn fx:id="riQtyCol"  text="Quantity"   prefWidth="80"/>
+                <TableColumn fx:id="riUnitCol" text="Unit"       prefWidth="80"/>
+            </columns>
+        </TableView>
+
+        <!-- Action Buttons -->
+        <HBox spacing="10" alignment="CENTER_RIGHT">
+            <Button text="Clear" onAction="#handleClear"/>
+            <Button text="Save Item" onAction="#handleSave" styleClass="btn-success"
+                    style="-fx-font-weight: bold;"/>
+            <Button text="Update Item" onAction="#handleUpdate" styleClass="btn-primary"
+                    style="-fx-font-weight: bold;"/>
+            <Button text="Delete" onAction="#handleDelete" styleClass="btn-danger"/>
+        </HBox>
+
+        <Label fx:id="statusLabel" text="" style="-fx-font-size: 12;"/>
+    </VBox>
+
+    <!-- ==================== RIGHT PANEL: TABLE ==================== -->
+    <VBox spacing="12">
+        <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
+
+        <Label text="All Menu Items" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
+        <Separator/>
+
+        <TableView fx:id="menuTable" VBox.vgrow="ALWAYS">
+            <columns>
+                <TableColumn fx:id="idCol"       text="ID"        prefWidth="45"/>
+                <TableColumn fx:id="nameCol"     text="Name"      prefWidth="150"/>
+                <TableColumn fx:id="catCol"      text="Category"  prefWidth="100"/>
+                <TableColumn fx:id="priceCol"    text="Price ($)" prefWidth="75"/>
+                <TableColumn fx:id="prepCol"     text="Prep (m)"  prefWidth="65"/>
+                <TableColumn fx:id="availCol"    text="Available" prefWidth="70"/>
+            </columns>
+        </TableView>
+
+        <Button text="↻ Refresh" onAction="#handleRefresh"/>
+    </VBox>
+
+</SplitPane>
