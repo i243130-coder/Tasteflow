@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Spinner?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.geometry.Insets?>
+
+<SplitPane dividerPositions="0.40"
+           xmlns="http://javafx.com/javafx/11"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.tasteflow.controller.ReservationController">
+
+    <!-- ==================== LEFT: BOOKING FORM ==================== -->
+    <VBox spacing="12">
+        <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
+
+        <Label text="Book a Table" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
+        <Separator/>
+
+        <GridPane hgap="10" vgap="10">
+            <columnConstraints>
+                <ColumnConstraints minWidth="110" prefWidth="110"/>
+                <ColumnConstraints hgrow="ALWAYS"/>
+            </columnConstraints>
+
+            <Label text="Table:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+            <ComboBox fx:id="tableCombo" promptText="Select Table"
+                      GridPane.rowIndex="0" GridPane.columnIndex="1"
+                      maxWidth="1.7976931348623157E308"/>
+
+            <Label text="Date:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+            <DatePicker fx:id="datePicker" promptText="Select Date"
+                        GridPane.rowIndex="1" GridPane.columnIndex="1"
+                        maxWidth="1.7976931348623157E308"/>
+
+            <Label text="Start Time:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+            <HBox spacing="6" GridPane.rowIndex="2" GridPane.columnIndex="1">
+                <Spinner fx:id="startHourSpinner" prefWidth="70"/>
+                <Label text=":" style="-fx-font-size: 16; -fx-padding: 4 0 0 0;"/>
+                <Spinner fx:id="startMinSpinner" prefWidth="70"/>
+            </HBox>
+
+            <Label text="End Time:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+            <HBox spacing="6" GridPane.rowIndex="3" GridPane.columnIndex="1">
+                <Spinner fx:id="endHourSpinner" prefWidth="70"/>
+                <Label text=":" style="-fx-font-size: 16; -fx-padding: 4 0 0 0;"/>
+                <Spinner fx:id="endMinSpinner" prefWidth="70"/>
+            </HBox>
+
+            <Label text="Guest Name:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+            <TextField fx:id="guestNameField" promptText="Full name"
+                       GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+            <Label text="Phone:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+            <TextField fx:id="guestPhoneField" promptText="Phone number"
+                       GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+
+            <Label text="Party Size:" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+            <Spinner fx:id="guestCountSpinner" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+
+            <Label text="Requests:" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
+            <TextArea fx:id="requestsArea" promptText="Any special requests…"
+                      prefRowCount="2"
+                      GridPane.rowIndex="7" GridPane.columnIndex="1"/>
+        </GridPane>
+
+        <HBox spacing="10" alignment="CENTER_RIGHT">
+            <Button text="Clear" onAction="#handleClear"/>
+            <Button text="Book Table" onAction="#handleBook" styleClass="btn-success"
+                    style="-fx-font-weight: bold;"/>
+        </HBox>
+
+        <Label fx:id="statusLabel" text="" wrapText="true" style="-fx-font-size: 12;"/>
+    </VBox>
+
+    <!-- ==================== RIGHT: RESERVATIONS TABLE ==================== -->
+    <VBox spacing="12">
+        <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
+
+        <Label text="Reservations" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
+        <Separator/>
+
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Label text="View for date:"/>
+            <DatePicker fx:id="filterDatePicker" promptText="Filter date"/>
+            <Button text="Filter" onAction="#handleFilter"/>
+            <Button text="Show All Upcoming" onAction="#handleShowUpcoming"/>
+        </HBox>
+
+        <TableView fx:id="reservationTable" VBox.vgrow="ALWAYS">
+            <columns>
+                <TableColumn fx:id="resIdCol"     text="ID"       prefWidth="45"/>
+                <TableColumn fx:id="resTableCol"  text="Table"    prefWidth="65"/>
+                <TableColumn fx:id="resDateCol"   text="Date"     prefWidth="90"/>
+                <TableColumn fx:id="resTimeCol"   text="Time"     prefWidth="110"/>
+                <TableColumn fx:id="resGuestCol"  text="Guest"    prefWidth="120"/>
+                <TableColumn fx:id="resPhoneCol"  text="Phone"    prefWidth="100"/>
+                <TableColumn fx:id="resSizeCol"   text="Party"    prefWidth="50"/>
+                <TableColumn fx:id="resStatusCol" text="Status"   prefWidth="90"/>
+            </columns>
+        </TableView>
+
+        <HBox spacing="10">
+            <Button text="✅ Mark Seated" onAction="#handleMarkSeated" styleClass="btn-primary"/>
+            <Button text="✔ Complete" onAction="#handleMarkCompleted" styleClass="btn-success"/>
+            <Button text="❌ Cancel" onAction="#handleCancel" styleClass="btn-danger"/>
+            <Button text="🚫 No-Show" onAction="#handleNoShow"/>
+        </HBox>
+    </VBox>
+
+</SplitPane>
