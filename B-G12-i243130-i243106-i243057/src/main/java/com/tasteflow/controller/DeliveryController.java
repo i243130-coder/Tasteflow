@@ -131,52 +131,104 @@ public class DeliveryController {
     }
 
     /**
-     * Creates a new delivery order from an existing dine-in/takeaway order.
-     * Opens a dialog to enter delivery details.
+     * Creates a brand-new delivery order.
+     * Opens a multi-field dialog to collect customer details, then
+     * automatically creates both the parent Order (DELIVERY type) and the
+     * linked delivery_order record.  The delivery appears in the active
+     * list with PENDING_ASSIGNMENT status, waiting for a rider to be assigned.
      */
     @FXML
     private void handleNewDelivery() {
-        // Get order ID
-        TextInputDialog orderDialog = new TextInputDialog();
-        orderDialog.setTitle("New Delivery Order");
-        orderDialog.setHeaderText("Link to existing order");
-        orderDialog.setContentText("Order ID:");
-        Optional<String> orderResult = orderDialog.showAndWait();
-        if (!orderResult.isPresent() || orderResult.get().trim().isEmpty()) return;
+        // ---- Build a custom dialog with multiple fields ----
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle("New Delivery Order");
+        dialog.setHeaderText("Enter delivery details");
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
-        int orderId;
-        try {
-            orderId = Integer.parseInt(orderResult.get().trim());
-        } catch (NumberFormatException e) {
-            setStatus("⚠ Invalid order ID.", true);
+        javafx.scene.layout.GridPane grid = new javafx.scene.layout.GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new javafx.geometry.Insets(20, 150, 10, 10));
+
+        TextField customerField = new TextField();
+        customerField.setPromptText("Customer name");
+        TextField addressField = new TextField();
+        addressField.setPromptText("Full delivery address");
+        TextField phoneField = new TextField();
+        phoneField.setPromptText("03001234567");
+        TextField feeField = new TextField("5.00");
+        feeField.setPromptText("Delivery fee");
+        TextField totalField = new TextField();
+        totalField.setPromptText("Order total amount");
+
+        grid.add(new Label("Customer:"), 0, 0);  grid.add(customerField, 1, 0);
+        grid.add(new Label("Address:"),  0, 1);  grid.add(addressField,  1, 1);
+        grid.add(new Label("Phone:"),    0, 2);  grid.add(phoneField,    1, 2);
+        grid.add(new Label("Delivery Fee:"), 0, 3); grid.add(feeField, 1, 3);
+        grid.add(new Label("Order Total:"), 0, 4); grid.add(totalField, 1, 4);
+
+        dialog.getDialogPane().setContent(grid);
+
+        // Focus the customer name field
+        javafx.application.Platform.runLater(customerField::requestFocus);
+
+        Optional<ButtonType> result = dialog.showAndWait();
+        if (!result.isPresent() || result.get() != ButtonType.OK) return;
+
+        // ---- Validate inputs ----
+        String customer = customerField.getText().trim();
+        String address  = addressField.getText().trim();
+        String phone    = phoneField.getText().trim();
+        String feeText  = feeField.getText().trim();
+        String totalText = totalField.getText().trim();
+
+        if (address.isEmpty() || phone.isEmpty()) {
+            setStatus("⚠ Address and Phone are required.", true);
             return;
         }
 
-        // Get address
-        TextInputDialog addrDialog = new TextInputDialog("123 Main Street");
-        addrDialog.setTitle("Delivery Address");
-        addrDialog.setContentText("Address:");
-        Optional<String> addrResult = addrDialog.showAndWait();
-        if (!addrResult.isPresent() || addrResult.get().trim().isEmpty()) return;
-
-        // Get phone
-        TextInputDialog phoneDialog = new TextInputDialog("03001234567");
-        phoneDialog.setTitle("Delivery Phone");
-        phoneDialog.setContentText("Phone:");
-        Optional<String> phoneResult = phoneDialog.showAndWait();
-        if (!phoneResult.isPresent() || phoneResult.get().trim().isEmpty()) return;
+        BigDecimal fee;
+        BigDecimal orderTotal;
+        try {
+            fee = feeText.isEmpty() ? new BigDecimal("5.00") : new BigDecimal(feeText);
+            orderTotal = totalText.isEmpty() ? BigDecimal.ZERO : new BigDecimal(totalText);
+        } catch (NumberFormatException e) {
+            setStatus("⚠ Invalid number for fee or total.", true);
+            return;
+        }
 
         try {
+            // 1. Create a DELIVERY order in the `order` table
+            Order order = new Order();
+            order.setBranchId(1);
+            order.setOrderType("DELIVERY");
+            order.setStatus("PENDING");
+            order.setSubtotal(orderTotal);
+            order.setTax(BigDecimal.ZERO);
+            order.setDiscount(BigDecimal.ZERO);
+            order.setTotal(orderTotal);
+            order.setSpecialInstructions("Delivery order for " +
+                    (customer.isEmpty() ? "Walk-in" : customer));
+            order.setItems(new ArrayList<>());
+
+            int orderId = orderDAO.placeDeliveryOrder(order);
+
+            // 2. Create the delivery record (PENDING_ASSIGNMENT)
             DeliveryOrder d = new DeliveryOrder();
             d.setOrderId(orderId);
-            d.setDeliveryAddress(addrResult.get().trim());
-            d.setDeliveryPhone(phoneResult.get().trim());
+            d.setDeliveryAddress(address);
+            d.setDeliveryPhone(phone);
             d.setPlatformSource("TASTEFLOW");
-            d.setDeliveryFee(new BigDecimal("5.00"));
+            d.setDeliveryFee(fee);
+            d.setCustomerName(customer.isEmpty() ? "Walk-in" : customer);
+            d.setOrderTotal(orderTotal);
 
             int delivId = deliveryDAO.createDelivery(d);
-            setStatus("✅ Delivery #" + delivId + " created for Order #" + orderId, false);
+
+            setStatus("✅ Delivery #" + delivId + " created (Order #" + orderId +
+                       ") — Waiting for rider assignment.", false);
             handleShowActive();
+
         } catch (SQLException e) {
             setStatus("❌ " + e.getMessage(), true);
         }
