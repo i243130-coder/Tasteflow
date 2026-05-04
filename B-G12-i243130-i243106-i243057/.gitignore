@@ -1,0 +1,40 @@
+# ── Build output ──
+target/
+
+# ── IDE files ──
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+*.swp
+*~
+
+# ── Maven wrapper ──
+.mvn/wrapper/maven-wrapper.jar
+
+# ── OS files ──
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Local Maven repo cache ──
+.m2/
+
+# ── Compiled classes ──
+*.class
+
+# ── Package files ──
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+
+# ── Log files ──
+*.log
+hs_err_pid*
+
+# ── Database credentials (if externalized) ──
+# db.properties
